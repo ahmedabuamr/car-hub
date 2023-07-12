@@ -1,56 +1,105 @@
-import { Hero, SearchBar, CustomFilter, ShowMore } from "@/components";
+"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+
+
+import { CustomFilter, Hero, SearchBar, ShowMore } from "@/components";
 import CarCard from "@/components/CarCard";
-import { fuels, yearsOfProduction } from "@/constants";
-import { HomeProps } from "@/types";
 import fetchCars from "@/utlis";
+import { CarState } from "@/types";
+import { fuels, yearsOfProduction } from "@/constants";
 
+export default function Home() {
+  const [allCars, setAllCars] = useState<CarState>([]);
+  const [loading, setLoading] = useState(false);
 
-export default async function Home({ searchParams }: HomeProps) {
-  const allCars = await fetchCars({
-    manuFacturer: searchParams.manuFacturer || "",
-    year: searchParams.year || 2022,
-    fuel: searchParams.fuel || "",
-    limit: searchParams.limit || 12,
-    model: searchParams.model || "",
-  });
-  const isDataEmpty = !Array.isArray(allCars) || allCars.length < 1 || !allCars;
+  // search states
+  const [manuFacturer, setManuFacturer] = useState("");
+  const [model, setModel] = useState("");
+
+  // filter state
+  const [fuel, setFuel] = useState("");
+  const [year, setYear] = useState(2022);
+
+  // limit state
+  const [limit, setLimit] = useState(12);
+
+  const getCars = async () => {
+    setLoading(true);
+    try {
+      const result = await fetchCars({
+        manuFacturer: manuFacturer.toLowerCase() || "",
+        model: model.toLowerCase() || "",
+        fuel: fuel.toLowerCase() || "",
+        year: year || 2022,
+        limit: limit || 12,
+      });
+
+      setAllCars(result);
+    } catch {
+      console.error();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getCars();
+  }, [fuel, year, limit, manuFacturer, model]);
 
   return (
-    <main className=" overflow-hidden">
-      {/* hero section */}
+    <main className='overflow-hidden'>
       <Hero />
 
-      {/* content section */}
-      <div className=" mt-12 padding-x padding-y max-width" id="discover">
-        <div className=" flex flex-col justify-start items-start gap-2 text-black-100">
-          <h1 className="text-4xl font-extrabold">Car Catalogue</h1>
+      <div className='mt-12 padding-x padding-y max-width' id='discover'>
+        <div className='home__text-container'>
+          <h1 className='text-4xl font-extrabold'>Car Catalogue</h1>
           <p>Explore out cars you might like</p>
         </div>
-        <div className="home__filters">
-          <SearchBar />
-          <div className="home__filter-container">
-            <CustomFilter title = "fuel" options = {fuels} />
-            <CustomFilter title = "year" options ={yearsOfProduction} />
+
+        <div className='home__filters'>
+          <SearchBar setManuFacturer={setManuFacturer} setModel={setModel} />
+
+          <div className='home__filter-container'>
+            <CustomFilter options={fuels} setFilter={setFuel} />
+            <CustomFilter options={yearsOfProduction} setFilter={setYear} />
           </div>
         </div>
 
-        {!isDataEmpty ? (
+        {allCars.length > 0 ? (
           <section>
-            <div className="home__cars-wrapper">
-              {allCars.map((car) => (
-                <CarCard car={car} />
+            <div className='home__cars-wrapper'>
+              {allCars?.map((car, index) => (
+                <CarCard key={`car-${index}`} car={car} />
               ))}
             </div>
-            <ShowMore 
-             pageNumber = {(searchParams.limit || 12) / 12}
-             isNext = {(searchParams.limit || 12) > allCars.length}
+
+            {loading && (
+              <div className='mt-16 w-full flex-center'>
+                <Image
+                  src='/loader.svg'
+                  alt='loader'
+                  width={50}
+                  height={50}
+                  className='object-contain'
+                />
+              </div>
+            )}
+
+            <ShowMore
+              pageNumber={limit / 12}
+              isNext={limit > allCars.length}
+              setLimit={setLimit}
             />
           </section>
         ) : (
-          <div className="home__error-container">
-            <h2 className="text-black text-xl font-bold">Oops, no results</h2>
-            <p>{allCars?.message}</p>
-          </div>
+          !loading && (
+            <div className='home__error-container'>
+              <h2 className='text-black text-xl font-bold'>Oops, no results</h2>
+              <p>{allCars?.message}</p>
+            </div>
+          )
         )}
       </div>
     </main>

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import SearchManuFacturer from "./SearchManuFacturer";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { SearchBarProps } from "@/types";
 const SearchButton = ({ otherClasses }: { otherClasses: string }) => {
   return (
     <>
@@ -19,46 +20,47 @@ const SearchButton = ({ otherClasses }: { otherClasses: string }) => {
   );
 };
 
-const SearchBar = () => {
-  const [manuFacturer, setManuFacturer] = useState("");
-  const [model, setModel] = useState("");
+const SearchBar = ({setManuFacturer,setModel}:SearchBarProps) => {
+  const [searchManuFacturer, setSearchManuFacturer] = useState("");
+  const [searchmodel, setSearchmodel] = useState("");
 
   const router = useRouter()
 
   const handelSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (manuFacturer === "" && model === "") {
+    if (searchManuFacturer === "" && searchmodel === "") {
       return alert("should be search input");
     }
-    updateSearchParams(model.toLowerCase(), manuFacturer.toLowerCase());
+    setManuFacturer(searchManuFacturer)
+    setModel(searchmodel)
   };
 
-  const updateSearchParams = (model:string, manuFacturer:string) => {
-    const searchParams = new URLSearchParams(window.location.search);
-    // Update or delete the 'model' search parameter based on the 'model' value
-    if (model) {
-      searchParams.set("model", model);
-    } else {
-      searchParams.delete("model");
-    }
-    // Update or delete the 'manufacturer' search parameter based on the 'manufacturer' value
+  // const updateSearchParams = (model:string, manuFacturer:string) => {
+  //   const searchParams = new URLSearchParams(window.location.search);
+  //   // Update or delete the 'model' search parameter based on the 'model' value
+  //   if (model) {
+  //     searchParams.set("model", model);
+  //   } else {
+  //     searchParams.delete("model");
+  //   }
+  //   // Update or delete the 'manufacturer' search parameter based on the 'manufacturer' value
 
-    if (manuFacturer) {
-      searchParams.set("manuFacturer", manuFacturer);
-    } else {
-      searchParams.delete("manuFacturer");
-    }
+  //   if (manuFacturer) {
+  //     searchParams.set("manuFacturer", manuFacturer);
+  //   } else {
+  //     searchParams.delete("manuFacturer");
+  //   }
 
-    // Generate the new pathname with the updated search parameters
-    const newPathname = `${window.location.pathname}?${searchParams.toString()}`
-    router.push(newPathname)
-  };
+  //   // Generate the new pathname with the updated search parameters
+  //   const newPathname = `${window.location.pathname}?${searchParams.toString()}`
+  //   router.push(newPathname)
+  // };
   return (
     <form className="searchbar" onSubmit={handelSubmit}>
       <div className="searchbar__item">
         <SearchManuFacturer
-          manuFacturer={manuFacturer}
-          setManuFacturer={setManuFacturer}
+          selected={searchManuFacturer}
+          setSelected={setSearchManuFacturer}
         />
         <SearchButton otherClasses="sm:hidden" />
       </div>
@@ -73,8 +75,8 @@ const SearchBar = () => {
         <input
           type="text"
           name="model"
-          value={model}
-          onChange={(e) => setModel(e.target.value)}
+          value={searchmodel}
+          onChange={(e) => setSearchmodel(e.target.value)}
           placeholder="model..."
           className="searchbar__input"
         />

@@ -8,10 +8,18 @@ export interface CustomButtonProps {
   textStyles?:string
   rightIcon:string
 }
+export interface SearchBarProps {
+  setManuFacturer: (manufacturer: string) => void;
+  setModel: (model: string) => void;
+}
 
 export interface SearchManuFacturer {
   manuFacturer: string;
   setManuFacturer: (manufacturer: string) => void;
+}
+export interface SearchManuFacturerProps {
+  selected: string;
+  setSelected: (selected: string) => void;
 }
 
 export interface CarCardProps {
@@ -28,7 +36,7 @@ export interface CarCardProps {
   transmission: string;
   year: number;
 }
-
+export type CarState = CarCardProps[] & { message?: string };
 export interface FilterProps {
   model?:string
   manuFacturer?:string
@@ -45,12 +53,13 @@ export interface OptionProps {
   value:string
 }
 
-export interface CustomFilterProps {
-  title:string
+export interface CustomFilterProps<T> {
   options:OptionProps[]
+  setFilter: (selected: T) => void;
 }
 
 export interface ShowMoreProps{
   pageNumber:number
   isNext:boolean
+  setLimit: (limit: number) => void;
 }

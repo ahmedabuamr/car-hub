@@ -8,18 +8,18 @@ import { updateSearchParams } from "@/utlis";
 import Image from "next/image";
 
 
-const CustomFilter = ({ title, options }: CustomFilterProps) => {
+export default function CustomFilter<T>({ setFilter, options }: CustomFilterProps<T>)  {
 
   const [selected, setSelected] = useState(options[0]); // State for storing the selected option
 
 // update the URL search parameters and navigate to the new URL
-const router = useRouter();
+// const router = useRouter();
 
-const handleUpdateParams = (e: { title: string; value: string }) => {
-  const newPathName = updateSearchParams(title, e.value.toLowerCase());
+// const handleUpdateParams = (e: { title: string; value: string }) => {
+//   const newPathName = updateSearchParams(title, e.value.toLowerCase());
 
-  router.push(newPathName);
-};
+//   router.push(newPathName);
+// };
 
   return (
     <div className="w-fit">
@@ -27,7 +27,7 @@ const handleUpdateParams = (e: { title: string; value: string }) => {
         value={selected}
         onChange={(e) => {
           setSelected(e); // Update the selected option in state
-          handleUpdateParams(e); // Update the URL search parameters and navigate to the new URL
+          setFilter(e.value as unknown as T); // Update the URL search parameters and navigate to the new URL
         }}
       >
         <div className="relative w-fit z-10">
@@ -82,4 +82,3 @@ const handleUpdateParams = (e: { title: string; value: string }) => {
   );
 };
 
-export default CustomFilter;
